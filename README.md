@@ -57,7 +57,7 @@
 
 ```bash
 # 1. Клонування репозиторію
-git clone https://github.com/Isoloneya/cobudget.git
+git clone https://github.com/Isoloneya/Cobudget.git
 cd cobudget
 
 # 2. Створення та активація віртуального середовища
