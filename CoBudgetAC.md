@@ -1,7 +1,5 @@
 # Технічне завдання проєкту CoBudget
 
-**Дисципліна:** Сучасні технології веб-розробки
-**Тип роботи:** Індивідуальне семестрове завдання
 **Технологічний стек:** Python, FastAPI, SQLAlchemy, PostgreSQL/SQLite, HTML, CSS (Tailwind), JavaScript
 
 ---
