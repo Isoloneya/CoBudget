@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoBudget — Бюджети</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Manrope','sans-serif'] }, colors: {
+    surface:'#0B0B0C', panel:'#131315', card:'#1D1D21', card2:'#26262B', line:'rgba(255,255,255,0.07)',
+    mint:'#34D399', coral:'#FF6B6B', amber:'#FFB454', orange:'#FF9F43', blue:'#4DA6FF', violet:'#A78BFA', pink:'#FF6B9D',
+  } } } }
+</script>
+<style>body{font-family:'Manrope',sans-serif;}</style>
+</head>
+<body class="bg-surface text-[#F5F5F3] m-0">
+  <div class="lg:flex lg:min-h-screen">
+
+    <aside class="hidden lg:flex lg:w-64 lg:shrink-0 lg:flex-col bg-panel border-r border-line p-6">
+      <div class="text-xl font-extrabold mb-8">Co<span class="text-mint">Budget</span></div>
+      <div class="bg-card rounded-2xl px-4 py-3 mb-6">
+        <div class="text-[10px] text-[#8C8C94] font-bold mb-1">ПОТОЧНИЙ БЮДЖЕТ</div>
+        <div class="text-sm font-bold flex items-center justify-between">Сімейний бюджет <span class="text-[#8C8C94]">▾</span></div>
+      </div>
+      <nav class="flex flex-col gap-1 text-sm font-bold">
+        <a href="budgets.html" class="flex items-center gap-3 px-4 py-2.5 rounded-full bg-mint text-surface"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Бюджет</a>
+        <a href="transactions.html" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-[#8C8C94] hover:bg-card"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Транзакції</a>
+        <a href="categories.html" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-[#8C8C94] hover:bg-card"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 12.5L12.5 20.6a2 2 0 01-2.8 0L3 13.9V3h10.9l6.7 6.7a2 2 0 010 2.8z"/><circle cx="8" cy="8" r="1.5"/></svg>Категорії</a>
+        <a href="members.html" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-[#8C8C94] hover:bg-card"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c0-3 3-5 7-5s7 2 7 5"/></svg>Учасники</a>
+      </nav>
+      <div class="mt-auto flex items-center gap-3 pt-6 border-t border-line">
+        <div class="w-9 h-9 rounded-full bg-mint flex items-center justify-center text-surface font-extrabold text-sm">В</div>
+        <div class="text-sm font-bold">Ви</div>
+      </div>
+    </aside>
+
+    <div class="lg:flex-1 min-h-screen relative flex flex-col">
+
+      <header class="flex items-center justify-between px-5 pt-6 pb-4 lg:px-10 lg:pt-8 lg:pb-6">
+        <h1 class="text-2xl font-extrabold">Бюджети</h1>
+        <div class="flex items-center gap-3">
+          <button onclick="openCreateModal()" class="hidden lg:inline-flex items-center gap-2 bg-mint text-surface font-extrabold rounded-full px-5 py-2.5 text-sm">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Новий бюджет
+          </button>
+          <div class="w-9 h-9 rounded-full bg-mint flex items-center justify-center text-surface font-extrabold text-sm">В</div>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto px-5 pb-32 lg:px-10 lg:pb-10">
+        <div id="empty-state" class="hidden text-center py-20">
+          <div class="text-[#8C8C94] font-semibold mb-4">У вас ще немає жодного бюджету</div>
+          <button onclick="openCreateModal()" class="bg-mint text-surface font-extrabold rounded-full px-6 py-3 text-sm">Створити перший бюджет</button>
+        </div>
+        <div id="budgets-list" class="space-y-3 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-5"></div>
+      </main>
+
+      <div id="create-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-6">
+        <div class="bg-card rounded-2xl p-6 w-full max-w-sm">
+          <div class="text-lg font-extrabold mb-4">Новий бюджет</div>
+          <label class="block text-xs font-semibold text-[#8C8C94] mb-2">Назва</label>
+          <input id="new-budget-name" type="text" placeholder="Наприклад: Сімейний бюджет" class="w-full bg-card2 border border-line rounded-2xl px-4 py-3 mb-4 text-sm font-semibold outline-none focus:ring-2 focus:ring-mint">
+          <label class="block text-xs font-semibold text-[#8C8C94] mb-2">Опис (необов'язково)</label>
+          <input id="new-budget-description" type="text" placeholder="Короткий опис" class="w-full bg-card2 border border-line rounded-2xl px-4 py-3 mb-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-mint">
+          <div id="modal-error" class="hidden text-coral text-xs font-semibold mb-3"></div>
+          <div class="flex gap-3 mt-2">
+            <button onclick="closeCreateModal()" class="flex-1 bg-card2 font-bold rounded-full py-3 text-sm">Скасувати</button>
+            <button id="create-submit-btn" onclick="submitCreateBudget()" class="flex-1 bg-mint text-surface font-extrabold rounded-full py-3 text-sm">Створити</button>
+          </div>
+        </div>
+      </div>
+      
+      <button onclick="openCreateModal()" class="lg:hidden absolute right-5 bottom-24 w-14 h-14 rounded-full bg-mint flex items-center justify-center shadow-lg shadow-mint/30">
+        <svg class="w-6 h-6 text-surface" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <nav class="lg:hidden absolute bottom-0 left-0 right-0 bg-panel border-t border-line flex py-2">
+        <a href="budgets.html" class="flex-1 flex flex-col items-center gap-1 text-[10.5px] font-bold">
+          <div class="w-10 h-7 rounded-xl bg-mint flex items-center justify-center"><svg class="w-4 h-4 text-surface" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+          Бюджет
+        </a>
+        <a href="transactions.html" class="flex-1 flex flex-col items-center gap-1 text-[10.5px] font-bold text-[#8C8C94]">
+          <div class="w-10 h-7 rounded-xl flex items-center justify-center"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
+          Транзакції
+        </a>
+        <a href="categories.html" class="flex-1 flex flex-col items-center gap-1 text-[10.5px] font-bold text-[#8C8C94]">
+          <div class="w-10 h-7 rounded-xl flex items-center justify-center"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 12.5L12.5 20.6a2 2 0 01-2.8 0L3 13.9V3h10.9l6.7 6.7a2 2 0 010 2.8z"/><circle cx="8" cy="8" r="1.5"/></svg></div>
+          Категорії
+        </a>
+        <a href="members.html" class="flex-1 flex flex-col items-center gap-1 text-[10.5px] font-bold text-[#8C8C94]">
+          <div class="w-10 h-7 rounded-xl flex items-center justify-center"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c0-3 3-5 7-5s7 2 7 5"/></svg></div>
+          Учасники
+        </a>
+      </nav>
+    </div>
+  </div>
+
+<script src="/static/js/api_client.js"></script>
+<script>
+  if (!isAuthenticated()) window.location.href = "/login.html";
+
+  const listEl = document.getElementById("budgets-list");
+  const emptyStateEl = document.getElementById("empty-state");
+
+  function budgetCard(budget) {
+    const roleLabel = budget.role === "owner" ? "Власник" : "Учасник";
+    return `
+      <a href="dashboard.html?id=${budget.id}" class="block bg-card rounded-2xl p-4 lg:p-5">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="font-bold mb-1">${budget.name}</div>
+            <div class="text-xs text-[#8C8C94] font-semibold">${budget.description || "Без опису"} · ${roleLabel}</div>
+          </div>
+        </div>
+      </a>
+    `;
+  }
+
+  async function loadBudgets() {
+    try {
+      const budgets = await apiFetch("/budgets");
+      if (budgets.length === 0) {
+        emptyStateEl.classList.remove("hidden");
+        listEl.innerHTML = "";
+      } else {
+        emptyStateEl.classList.add("hidden");
+        listEl.innerHTML = budgets.map(budgetCard).join("");
+      }
+    } catch (error) {
+      showToast(error.message || "Не вдалося завантажити бюджети", "error");
+    }
+  }
+
+  function openCreateModal() {
+    document.getElementById("create-modal").classList.remove("hidden");
+    document.getElementById("modal-error").classList.add("hidden");
+  }
+
+  function closeCreateModal() {
+    document.getElementById("create-modal").classList.add("hidden");
+    document.getElementById("new-budget-name").value = "";
+    document.getElementById("new-budget-description").value = "";
+  }
+
+  async function submitCreateBudget() {
+    const name = document.getElementById("new-budget-name").value.trim();
+    const description = document.getElementById("new-budget-description").value.trim();
+    const errorEl = document.getElementById("modal-error");
+    const btn = document.getElementById("create-submit-btn");
+
+    if (!name) {
+      errorEl.textContent = "Введіть назву бюджету";
+      errorEl.classList.remove("hidden");
+      return;
+    }
+
+    btn.disabled = true;
+    try {
+      await apiFetch("/budgets", {
+        method: "POST",
+        body: JSON.stringify({ name, description: description || null }),
+      });
+      closeCreateModal();
+      showToast("Бюджет створено");
+      await loadBudgets();
+    } catch (error) {
+      errorEl.textContent = error.message || "Не вдалося створити бюджет";
+      errorEl.classList.remove("hidden");
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  loadBudgets();
+</script>
+</body>
+</html>

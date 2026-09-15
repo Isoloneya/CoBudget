@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoBudget — Бюджет</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Manrope','sans-serif'] }, colors: {
+    surface:'#0B0B0C', panel:'#131315', card:'#1D1D21', card2:'#26262B', line:'rgba(255,255,255,0.07)',
+    mint:'#34D399', coral:'#FF6B6B', amber:'#FFB454', orange:'#FF9F43', blue:'#4DA6FF', violet:'#A78BFA', pink:'#FF6B9D',
+  } } } }
+</script>
+<style>body{font-family:'Manrope',sans-serif;}</style>
+</head>
+<body class="bg-surface text-[#F5F5F3] m-0">
+  <div class="lg:flex lg:min-h-screen">
+
+    <aside class="hidden lg:flex lg:w-64 lg:shrink-0 lg:flex-col bg-panel border-r border-line p-6">
+      <div class="text-xl font-extrabold mb-8">Co<span class="text-mint">Budget</span></div>
+      <div class="bg-card rounded-2xl px-4 py-3 mb-6">
+        <div class="text-[10px] text-[#8C8C94] font-bold mb-1">ПОТОЧНИЙ БЮДЖЕТ</div>
+        <div class="text-sm font-bold flex items-center justify-between">Сімейний бюджет <span class="text-[#8C8C94]">▾</span></div>
+      </div>
+      <nav class="flex flex-col gap-1 text-sm font-bold">
+        <a href="budgets.html" class="flex items-center gap-3 px-4 py-2.5 rounded-full bg-mint text-surface"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Бюджет</a>
+        <a id="sidebar-transactions" href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-[#8C8C94] hover:bg-card"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Транзакції</a>
+        <a id="sidebar-categories" href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-[#8C8C94] hover:bg-card"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 12.5L12.5 20.6a2 2 0 01-2.8 0L3 13.9V3h10.9l6.7 6.7a2 2 0 010 2.8z"/><circle cx="8" cy="8" r="1.5"/></svg>Категорії</a>
+        <a id="sidebar-members" href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-[#8C8C94] hover:bg-card"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c0-3 3-5 7-5s7 2 7 5"/></svg>Учасники</a>
+      </nav>
+      <div class="mt-auto flex items-center gap-3 pt-6 border-t border-line">
+        <div class="w-9 h-9 rounded-full bg-mint flex items-center justify-center text-surface font-extrabold text-sm">В</div>
+        <div class="text-sm font-bold">Ви</div>
+      </div>
+    </aside>
+
+    <div class="lg:flex-1 min-h-screen relative flex flex-col">
+
+      <header class="flex items-center gap-3 px-5 pt-6 pb-4 lg:px-10 lg:pt-8 lg:pb-6">
+        <a href="budgets.html" class="w-8 h-8 flex items-center justify-center -ml-2 lg:hidden">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </a>
+        <h1 id="budget-title" class="text-lg font-extrabold flex-1 lg:text-2xl">Бюджет</h1>
+        <a id="add-transaction-link-desktop" href="#" class="hidden lg:inline-flex items-center gap-2 bg-mint text-surface font-extrabold rounded-full px-5 py-2.5 text-sm">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Додати транзакцію
+        </a>
+        <div class="w-9 h-9 rounded-full bg-mint flex items-center justify-center text-surface font-extrabold text-sm">В</div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto px-5 pb-32 lg:px-10 lg:pb-10">
+        <div class="lg:grid lg:grid-cols-3 lg:gap-6 lg:items-start">
+
+          <div class="lg:col-span-2">
+            <div class="bg-gradient-to-br from-[#24242B] to-[#16161A] border border-line rounded-3xl p-6 lg:p-8 mb-6">
+              <div class="flex justify-between items-center mb-4 lg:mb-6">
+                <span class="text-[11px] lg:text-xs font-bold text-[#8C8C94]">ЗАЛИШОК</span>
+                <span id="balance-period" class="text-[11px] lg:text-xs font-bold text-[#8C8C94]"></span>
+              </div>
+              <div id="balance-amount" class="text-4xl lg:text-5xl font-extrabold tracking-tight mb-4 lg:mb-6">—</div>
+              <div class="flex justify-between text-[11px] lg:text-xs font-semibold text-[#8C8C94]">
+                <span id="expense-total-label">Витрачено —</span><span id="income-total-label">Дохід —</span>
+              </div>
+            </div>
+
+            <div class="text-sm font-extrabold mb-3">Категорії</div>
+            <div id="categories-list" class="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4 mb-6"></div>
+          </div>
+
+          <div class="space-y-6">
+            <div class="bg-card rounded-2xl lg:rounded-3xl px-4 lg:p-5">
+              <div class="text-sm font-extrabold pt-4 lg:pt-0 mb-1 lg:mb-4">Останні транзакції</div>
+              <div id="recent-transactions"></div>
+            </div>
+
+            <div class="hidden lg:block bg-card rounded-3xl p-5">
+              <div class="text-sm font-extrabold mb-3">Учасники</div>
+              <div id="members-avatars" class="flex -space-x-2 mb-4"></div>
+              <a id="invite-link" href="#" class="block w-full text-center bg-card2 rounded-full py-2.5 text-xs font-bold">Запросити учасника</a>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <a id="add-transaction-link-mobile" href="#" class="lg:hidden absolute right-5 bottom-24 w-14 h-14 rounded-full bg-mint flex items-center justify-center shadow-lg shadow-mint/30">
+        <svg class="w-6 h-6 text-surface" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </a>
+      <nav class="lg:hidden absolute bottom-0 left-0 right-0 bg-panel border-t border-line flex py-2">
+        <a href="budgets.html" class="flex-1 flex flex-col items-center gap-1 text-[10.5px] font-bold">
+          <div class="w-10 h-7 rounded-xl bg-mint flex items-center justify-center"><svg class="w-4 h-4 text-surface" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+          Бюджет
+        </a>
+        <a id="nav-transactions" href="#" class="flex-1 flex flex-col items-center gap-1 text-[10.5px] font-bold text-[#8C8C94]">
+          <div class="w-10 h-7 rounded-xl flex items-center justify-center"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
+          Транзакції
+        </a>
+        <a id="nav-categories" href="#" class="flex-1 flex flex-col items-center gap-1 text-[10.5px] font-bold text-[#8C8C94]">
+          <div class="w-10 h-7 rounded-xl flex items-center justify-center"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 12.5L12.5 20.6a2 2 0 01-2.8 0L3 13.9V3h10.9l6.7 6.7a2 2 0 010 2.8z"/><circle cx="8" cy="8" r="1.5"/></svg></div>
+          Категорії
+        </a>
+        <a id="nav-members" href="#" class="flex-1 flex flex-col items-center gap-1 text-[10.5px] font-bold text-[#8C8C94]">
+          <div class="w-10 h-7 rounded-xl flex items-center justify-center"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c0-3 3-5 7-5s7 2 7 5"/></svg></div>
+          Учасники
+        </a>
+      </nav>
+    </div>
+  </div>
+
+<script src="/static/js/api_client.js"></script>
+<script>
+  if (!isAuthenticated()) window.location.href = "/login.html";
+
+  const params = new URLSearchParams(window.location.search);
+  const budgetId = params.get("id");
+  if (!budgetId) window.location.href = "/budgets.html";
+
+  // Wire every nav link / action to carry the current budget id along.
+  document.getElementById("nav-transactions").href = `transactions.html?id=${budgetId}`;
+  document.getElementById("nav-categories").href = `categories.html?id=${budgetId}`;
+  document.getElementById("nav-members").href = `members.html?id=${budgetId}`;
+  document.getElementById("sidebar-transactions").href = `transactions.html?id=${budgetId}`;
+  document.getElementById("sidebar-categories").href = `categories.html?id=${budgetId}`;
+  document.getElementById("sidebar-members").href = `members.html?id=${budgetId}`;
+  document.getElementById("invite-link").href = `members.html?id=${budgetId}`;
+  document.getElementById("add-transaction-link-desktop").href = `add-transaction.html?id=${budgetId}`;
+  document.getElementById("add-transaction-link-mobile").href = `add-transaction.html?id=${budgetId}`;
+
+  const CATEGORY_COLORS = ["orange", "blue", "violet", "pink", "mint", "amber"];
+  function colorForCategory(categoryId) {
+    let hash = 0;
+    for (const ch of categoryId) hash = (hash * 31 + ch.charCodeAt(0)) % CATEGORY_COLORS.length;
+    return CATEGORY_COLORS[hash];
+  }
+
+  function formatMoney(value) {
+    return Number(value).toLocaleString("uk-UA", { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + " ₴";
+  }
+
+  function categoryCard(category) {
+    const color = colorForCategory(category.id);
+    if (category.type === "income") {
+      return `
+        <div class="bg-card rounded-2xl p-4 lg:p-5">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-${color} flex items-center justify-center shrink-0"></div>
+            <div class="font-bold text-sm flex-1">${category.name}</div>
+            <div class="text-xs font-semibold text-mint">+${formatMoney(category.spent)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    if (category.limit_amount === null) {
+      return `
+        <div class="bg-card rounded-2xl p-4 lg:p-5">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-${color} flex items-center justify-center shrink-0"></div>
+            <div class="font-bold text-sm flex-1">${category.name}</div>
+            <div class="text-xs font-semibold text-[#8C8C94]">${formatMoney(category.spent)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    const percent = Math.min(100, (Number(category.spent) / Number(category.limit_amount)) * 100);
+    const barColor = category.status === "over" ? "bg-coral" : category.status === "warning" ? "bg-amber" : "bg-mint";
+    const textColor = category.status === "over" ? "text-coral" : category.status === "warning" ? "text-amber" : "text-mint";
+    const statusText =
+      category.status === "over"
+        ? `Перевищено на ${formatMoney(Number(category.spent) - Number(category.limit_amount))}`
+        : category.status === "warning"
+        ? "Наближається до ліміту"
+        : "У межах ліміту";
+
+    return `
+      <div class="bg-card rounded-2xl p-4 lg:p-5">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-xl bg-${color} flex items-center justify-center shrink-0"></div>
+          <div class="font-bold text-sm flex-1">${category.name}</div>
+          <div class="text-xs font-semibold text-[#8C8C94]">${formatMoney(category.spent)} / ${formatMoney(category.limit_amount)}</div>
+        </div>
+        <div class="h-1.5 bg-white/10 rounded-full overflow-hidden mb-2"><div class="h-full ${barColor} rounded-full" style="width:${percent}%"></div></div>
+        <div class="text-[11px] font-bold ${textColor}">${statusText}</div>
+      </div>
+    `;
+  }
+
+  function transactionRow(transaction, categoriesById) {
+    const category = categoriesById[transaction.category_id];
+    const color = category ? colorForCategory(category.id) : "card2";
+    const isIncome = transaction.type === "income";
+    const title = transaction.comment || (category ? category.name : "Транзакція");
+    return `
+      <div class="flex items-center gap-3 py-3 border-b border-line last:border-b-0">
+        <div class="w-8 h-8 rounded-lg bg-${color} flex items-center justify-center shrink-0"></div>
+        <div class="flex-1 min-w-0"><div class="text-sm font-bold truncate">${title}</div><div class="text-xs text-[#8C8C94] font-semibold">${category ? category.name : ""} · ${transaction.txn_date}</div></div>
+        <div class="text-sm font-extrabold ${isIncome ? "text-mint" : ""}">${isIncome ? "+" : "–"}${formatMoney(transaction.amount)}</div>
+      </div>
+    `;
+  }
+
+  async function loadDashboard() {
+    try {
+      const [budget, summary, transactionsPage, members] = await Promise.all([
+        apiFetch(`/budgets/${budgetId}`),
+        apiFetch(`/budgets/${budgetId}/summary`),
+        apiFetch(`/budgets/${budgetId}/transactions?page_size=5`),
+        apiFetch(`/budgets/${budgetId}/members`),
+      ]);
+
+      document.getElementById("budget-title").textContent = budget.name;
+
+      const balance = Number(summary.income_total) - Number(summary.expense_total);
+      document.getElementById("balance-amount").textContent = formatMoney(balance);
+      document.getElementById("expense-total-label").textContent = `Витрачено ${formatMoney(summary.expense_total)}`;
+      document.getElementById("income-total-label").textContent = `Дохід ${formatMoney(summary.income_total)}`;
+
+      document.getElementById("categories-list").innerHTML = summary.categories.map(categoryCard).join("");
+
+      const categoriesById = Object.fromEntries(summary.categories.map((c) => [c.id, c]));
+      const recentEl = document.getElementById("recent-transactions");
+      recentEl.innerHTML = transactionsPage.items.length
+        ? transactionsPage.items.map((t) => transactionRow(t, categoriesById)).join("")
+        : `<div class="text-xs text-[#8C8C94] font-semibold py-4">Ще немає транзакцій</div>`;
+
+      document.getElementById("members-avatars").innerHTML = members
+        .map((m, i) => `<div class="w-9 h-9 rounded-full bg-${CATEGORY_COLORS[i % CATEGORY_COLORS.length]} border-2 border-card flex items-center justify-center text-surface font-extrabold text-xs">${m.email[0].toUpperCase()}</div>`)
+        .join("");
+    } catch (error) {
+      showToast(error.message || "Не вдалося завантажити бюджет", "error");
+    }
+  }
+
+  loadDashboard();
+</script>
+</body>
+</html>

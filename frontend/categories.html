@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoBudget — Категорії</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Manrope','sans-serif'] }, colors: {
+    surface:'#0B0B0C', panel:'#131315', card:'#1D1D21', card2:'#26262B', line:'rgba(255,255,255,0.07)',
+    mint:'#34D399', coral:'#FF6B6B', amber:'#FFB454', orange:'#FF9F43', blue:'#4DA6FF', violet:'#A78BFA', pink:'#FF6B9D',
+  } } } }
+</script>
+<style>body{font-family:'Manrope',sans-serif;}</style>
+</head>
+<body class="bg-surface text-[#F5F5F3] m-0">
+  <div class="lg:flex lg:min-h-screen">
+
+    <aside class="hidden lg:flex lg:w-64 lg:shrink-0 lg:flex-col bg-panel border-r border-line p-6">
+      <div class="text-xl font-extrabold mb-8">Co<span class="text-mint">Budget</span></div>
+      <div class="bg-card rounded-2xl px-4 py-3 mb-6">
+        <div class="text-[10px] text-[#8C8C94] font-bold mb-1">ПОТОЧНИЙ БЮДЖЕТ</div>
+        <div class="text-sm font-bold flex items-center justify-between">Сімейний бюджет <span class="text-[#8C8C94]">▾</span></div>
+      </div>
+      <nav class="flex flex-col gap-1 text-sm font-bold">
+        <a id="sidebar-budget" href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-[#8C8C94] hover:bg-card"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>Бюджет</a>
+        <a id="sidebar-transactions" href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-[#8C8C94] hover:bg-card"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Транзакції</a>
+        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full bg-mint text-surface"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 12.5L12.5 20.6a2 2 0 01-2.8 0L3 13.9V3h10.9l6.7 6.7a2 2 0 010 2.8z"/><circle cx="8" cy="8" r="1.5"/></svg>Категорії</a>
+        <a id="sidebar-members" href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-full text-[#8C8C94] hover:bg-card"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c0-3 3-5 7-5s7 2 7 5"/></svg>Учасники</a>
+      </nav>
+      <div class="mt-auto flex items-center gap-3 pt-6 border-t border-line">
+        <div class="w-9 h-9 rounded-full bg-mint flex items-center justify-center text-surface font-extrabold text-sm">В</div>
+        <div class="text-sm font-bold">Ви</div>
+      </div>
+    </aside>
+
+    <div class="lg:flex-1 min-h-screen relative flex flex-col">
+
+      <header class="flex items-center gap-3 px-5 pt-6 pb-4 lg:px-10 lg:pt-8 lg:pb-6">
+        <a id="back-link" href="#" class="w-8 h-8 flex items-center justify-center -ml-2 lg:hidden">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </a>
+        <h1 class="text-lg font-extrabold flex-1 lg:text-2xl">Категорії</h1>
+        <button id="header-create-btn" onclick="openCreateModal()" class="hidden lg:inline-flex items-center gap-2 bg-mint text-surface font-extrabold rounded-full px-5 py-2.5 text-sm">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>Нова категорія
+        </button>
+        <div class="w-9 h-9 rounded-full bg-mint flex items-center justify-center text-surface font-extrabold text-sm">В</div>
+      </header>
+
+      <main class="flex-1 overflow-y-auto px-5 pb-32 lg:px-10 lg:pb-10">
+        <div id="categories-list" class="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-5"></div>
+      </main>
+
+      <!-- create/edit modal -->
+      <div id="category-modal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-6">
+        <div class="bg-card rounded-2xl p-6 w-full max-w-sm">
+          <div id="modal-title" class="text-lg font-extrabold mb-4">Нова категорія</div>
+
+          <label class="block text-xs font-semibold text-[#8C8C94] mb-2">Назва</label>
+          <input id="category-name" type="text" placeholder="Наприклад: Подарунки" class="w-full bg-card2 border border-line rounded-2xl px-4 py-3 mb-4 text-sm font-semibold outline-none focus:ring-2 focus:ring-mint">
+
+          <div id="type-field">
+            <label class="block text-xs font-semibold text-[#8C8C94] mb-2">Тип</label>
+            <select id="category-type" class="w-full bg-card2 border border-line rounded-2xl px-4 py-3 mb-4 text-sm font-semibold outline-none">
+              <option value="expense">Витрата</option>
+              <option value="income">Дохід</option>
+            </select>
+          </div>
+
+          <div id="limit-field">
+            <label class="block text-xs font-semibold text-[#8C8C94] mb-2">Ліміт (необов'язково, лише для витрат)</label>
+            <input id="category-limit" type="text" inputmode="decimal" placeholder="Наприклад: 5000" class="w-full bg-card2 border border-line rounded-2xl px-4 py-3 mb-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-mint">
+          </div>
+
+          <div id="modal-error" class="hidden text-coral text-xs font-semibold mb-3"></div>
+
+          <div class="flex gap-3 mt-2">
+            <button onclick="closeCategoryModal()" class="flex-1 bg-card2 font-bold rounded-full py-3 text-sm">Скасувати</button>
+            <button id="modal-submit-btn" onclick="submitCategoryModal()" class="flex-1 bg-mint text-surface font-extrabold rounded-full py-3 text-sm">Зберегти</button>
+          </div>
+        </div>
+      </div>
+
+      <button id="fab-create" onclick="openCreateModal()" class="lg:hidden absolute right-5 bottom-24 w-14 h-14 rounded-full bg-mint flex items-center justify-center shadow-lg shadow-mint/30">
+        <svg class="w-6 h-6 text-surface" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <nav class="lg:hidden absolute bottom-0 left-0 right-0 bg-panel border-t border-line flex py-2">
+        <a id="nav-budget" href="#" class="flex-1 flex flex-col items-center gap-1 text-[10.5px] font-bold text-[#8C8C94]">
+          <div class="w-10 h-7 rounded-xl flex items-center justify-center"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+          Бюджет
+        </a>
+        <a id="nav-transactions" href="#" class="flex-1 flex flex-col items-center gap-1 text-[10.5px] font-bold text-[#8C8C94]">
+          <div class="w-10 h-7 rounded-xl flex items-center justify-center"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
+          Транзакції
+        </a>
+        <a href="#" class="flex-1 flex flex-col items-center gap-1 text-[10.5px] font-bold">
+          <div class="w-10 h-7 rounded-xl bg-mint flex items-center justify-center"><svg class="w-4 h-4 text-surface" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 12.5L12.5 20.6a2 2 0 01-2.8 0L3 13.9V3h10.9l6.7 6.7a2 2 0 010 2.8z"/><circle cx="8" cy="8" r="1.5"/></svg></div>
+          Категорії
+        </a>
+        <a id="nav-members" href="#" class="flex-1 flex flex-col items-center gap-1 text-[10.5px] font-bold text-[#8C8C94]">
+          <div class="w-10 h-7 rounded-xl flex items-center justify-center"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2 20c0-3 3-5 7-5s7 2 7 5"/></svg></div>
+          Учасники
+        </a>
+      </nav>
+    </div>
+  </div>
+
+<script src="/static/js/api_client.js"></script>
+<script>
+   if (!isAuthenticated()) window.location.href = "/login.html";
+
+  const params = new URLSearchParams(window.location.search);
+  const budgetId = params.get("id");
+  if (!budgetId) window.location.href = "/budgets.html";
+
+  document.getElementById("back-link").href = `dashboard.html?id=${budgetId}`;
+  document.getElementById("sidebar-budget").href = `dashboard.html?id=${budgetId}`;
+  document.getElementById("nav-budget").href = `dashboard.html?id=${budgetId}`;
+  document.getElementById("sidebar-transactions").href = `transactions.html?id=${budgetId}`;
+  document.getElementById("nav-transactions").href = `transactions.html?id=${budgetId}`;
+  document.getElementById("sidebar-members").href = `members.html?id=${budgetId}`;
+  document.getElementById("nav-members").href = `members.html?id=${budgetId}`;
+
+  const CATEGORY_COLORS = ["orange", "blue", "violet", "pink", "mint", "amber"];
+  function colorForCategory(categoryId) {
+    let hash = 0;
+    for (const ch of categoryId) hash = (hash * 31 + ch.charCodeAt(0)) % CATEGORY_COLORS.length;
+    return CATEGORY_COLORS[hash];
+  }
+  function formatMoney(value) {
+    return Number(value).toLocaleString("uk-UA", { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + " ₴";
+  }
+
+  let isOwner = false;
+  let editingCategoryId = null;
+  let categoriesById = {};
+
+  function categoryCard(category) {
+    const color = colorForCategory(category.id);
+    const limitText = category.type === "income" ? "Без ліміту" : category.limit_amount === null ? "Без ліміту" : `Ліміт: ${formatMoney(category.limit_amount)}`;
+    const badge = category.type === "income" ? "ДОХІД" : "ВИТРАТА";
+    const actions = isOwner
+      ? `
+        <div class="flex gap-2">
+          <button data-action="edit" data-id="${category.id}" class="text-xs font-bold text-[#8C8C94] bg-card2 rounded-full px-3 py-1.5">Редагувати</button>
+          <button data-action="archive" data-id="${category.id}" class="text-xs font-bold text-coral bg-card2 rounded-full px-3 py-1.5">Архівувати</button>
+        </div>
+      `
+      : "";
+
+    return `
+      <div class="bg-card rounded-2xl p-4 lg:p-5">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-${color} flex items-center justify-center shrink-0"></div>
+          <div class="flex-1">
+            <div class="font-bold text-sm">${category.name}</div>
+            <div class="text-xs text-[#8C8C94] font-semibold">${limitText}</div>
+          </div>
+          <span class="text-[10px] font-bold text-[#8C8C94] bg-card2 px-2 py-1 rounded-full">${badge}</span>
+        </div>
+        ${actions}
+      </div>
+    `;
+  }
+
+  async function loadCategories() {
+    try {
+      const [budget, categories] = await Promise.all([
+        apiFetch(`/budgets/${budgetId}`),
+        apiFetch(`/budgets/${budgetId}/categories`),
+      ]);
+      isOwner = budget.role === "owner";
+      categoriesById = Object.fromEntries(categories.map((c) => [c.id, c]));
+      document.getElementById("header-create-btn").classList.toggle("hidden", !isOwner);
+      document.getElementById("fab-create").classList.toggle("hidden", !isOwner);
+
+      const listEl = document.getElementById("categories-list");
+      listEl.innerHTML = categories.map(categoryCard).join("");
+
+      listEl.querySelectorAll('[data-action="edit"]').forEach((btn) => {
+        btn.addEventListener("click", () => openEditModal(categoriesById[btn.dataset.id]));
+      });
+      listEl.querySelectorAll('[data-action="archive"]').forEach((btn) => {
+        btn.addEventListener("click", () => archiveCategory(btn.dataset.id));
+      });
+    } catch (error) {
+      showToast(error.message || "Не вдалося завантажити категорії", "error");
+    }
+  }
+
+  function openCreateModal() {
+    editingCategoryId = null;
+    document.getElementById("modal-title").textContent = "Нова категорія";
+    document.getElementById("category-name").value = "";
+    document.getElementById("category-type").value = "expense";
+    document.getElementById("category-limit").value = "";
+    document.getElementById("type-field").classList.remove("hidden");
+    document.getElementById("modal-error").classList.add("hidden");
+    document.getElementById("category-modal").classList.remove("hidden");
+  }
+
+  function openEditModal(category) {
+    editingCategoryId = category.id;
+    document.getElementById("modal-title").textContent = "Редагувати категорію";
+    document.getElementById("category-name").value = category.name;
+    document.getElementById("category-type").value = category.type;
+    document.getElementById("category-limit").value = category.limit_amount || "";
+    document.getElementById("type-field").classList.add("hidden");
+    document.getElementById("limit-field").classList.toggle("hidden", category.type === "income");
+    document.getElementById("modal-error").classList.add("hidden");
+    document.getElementById("category-modal").classList.remove("hidden");
+  }
+
+  function closeCategoryModal() {
+    document.getElementById("category-modal").classList.add("hidden");
+  }
+
+  document.getElementById("category-type").addEventListener("change", (e) => {
+    document.getElementById("limit-field").classList.toggle("hidden", e.target.value === "income");
+  });
+
+  async function submitCategoryModal() {
+    const errorEl = document.getElementById("modal-error");
+    const name = document.getElementById("category-name").value.trim();
+    const type = document.getElementById("category-type").value;
+    const limitRaw = document.getElementById("category-limit").value.trim();
+    const limit_amount = limitRaw ? Number(limitRaw) : null;
+
+    if (!name) {
+      errorEl.textContent = "Введіть назву категорії";
+      errorEl.classList.remove("hidden");
+      return;
+    }
+
+    const btn = document.getElementById("modal-submit-btn");
+    btn.disabled = true;
+    try {
+      if (editingCategoryId) {
+        await apiFetch(`/budgets/${budgetId}/categories/${editingCategoryId}`, {
+          method: "PATCH",
+          body: JSON.stringify({ name, limit_amount }),
+        });
+      } else {
+        await apiFetch(`/budgets/${budgetId}/categories`, {
+          method: "POST",
+          body: JSON.stringify({ name, type, limit_amount }),
+        });
+      }
+      closeCategoryModal();
+      showToast("Збережено");
+      await loadCategories();
+    } catch (error) {
+      errorEl.textContent = error.message || "Не вдалося зберегти категорію";
+      errorEl.classList.remove("hidden");
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function archiveCategory(categoryId) {
+    if (!confirm("Архівувати цю категорію? Її не можна буде використати для нових транзакцій.")) return;
+    try {
+      await apiFetch(`/budgets/${budgetId}/categories/${categoryId}`, { method: "DELETE" });
+      showToast("Категорію архівовано");
+      await loadCategories();
+    } catch (error) {
+      showToast(error.message || "Не вдалося архівувати категорію", "error");
+    }
+  }
+
+  loadCategories();
+</script>
+</body>
+</html>

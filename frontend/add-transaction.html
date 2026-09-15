@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoBudget — Нова транзакція</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Manrope','sans-serif'] }, colors: {
+    surface:'#0B0B0C', panel:'#131315', card:'#1D1D21', card2:'#26262B', line:'rgba(255,255,255,0.07)',
+    mint:'#34D399', coral:'#FF6B6B', amber:'#FFB454', orange:'#FF9F43', blue:'#4DA6FF', violet:'#A78BFA', pink:'#FF6B9D',
+  } } } }
+</script>
+<style>body{font-family:'Manrope',sans-serif;}</style>
+</head>
+<body class="bg-surface text-[#F5F5F3] m-0">
+  <div class="min-h-screen flex flex-col items-center lg:justify-center">
+    <div class="w-full lg:max-w-lg lg:bg-card lg:rounded-3xl lg:my-16 relative flex flex-col min-h-screen lg:min-h-0">
+
+      <header class="flex items-center gap-3 px-5 pt-6 pb-4 lg:px-8 lg:pt-8">
+        <a id="back-link" href="#" class="w-8 h-8 flex items-center justify-center -ml-2">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </a>
+        <h1 class="text-lg font-extrabold flex-1 lg:text-xl">Нова транзакція</h1>
+      </header>
+
+      <main class="flex-1 overflow-y-auto px-5 pb-28 lg:px-8">
+        <div class="flex bg-card lg:bg-card2 rounded-full p-1 mb-6">
+          <button id="opt-income" class="flex-1 text-center py-2.5 rounded-full text-sm font-bold text-[#8C8C94]">Дохід</button>
+          <button id="opt-expense" class="flex-1 text-center py-2.5 rounded-full text-sm font-bold bg-mint text-surface">Витрата</button>
+        </div>
+
+        <div class="text-center mb-6">
+          <input id="amount-input" type="text" value="" placeholder="0" inputmode="decimal" class="bg-transparent text-center font-extrabold text-4xl w-full outline-none">
+          <div class="text-xs font-bold text-[#8C8C94]">гривень</div>
+        </div>
+
+        <div class="text-sm font-extrabold mb-3">Категорія</div>
+        <div id="category-chips" class="flex flex-wrap gap-2 mb-6">
+          <div class="text-xs text-[#8C8C94] font-semibold">Завантаження категорій…</div>
+        </div>
+
+        <label class="block text-xs font-semibold text-[#8C8C94] mb-2">Дата</label>
+        <input id="date-input" type="date" class="w-full bg-card lg:bg-card2 border border-line rounded-2xl px-4 py-3.5 mb-4 text-sm font-semibold outline-none focus:ring-2 focus:ring-mint">
+
+        <label class="block text-xs font-semibold text-[#8C8C94] mb-2">Коментар (необов'язково)</label>
+        <input id="comment-input" type="text" placeholder="Наприклад: тижнева закупівля" class="w-full bg-card lg:bg-card2 border border-line rounded-2xl px-4 py-3.5 text-sm font-semibold outline-none focus:ring-2 focus:ring-mint">
+
+        <div id="form-error" class="hidden text-coral text-xs font-semibold mt-4"></div>
+      </main>
+
+      <div class="absolute bottom-0 left-0 right-0 p-5 lg:p-8 lg:static bg-surface lg:bg-transparent border-t lg:border-t-0 border-line">
+        <button id="submit-btn" class="w-full bg-mint text-surface font-extrabold rounded-full py-3.5 text-sm">Зберегти транзакцію</button>
+      </div>
+    </div>
+  </div>
+
+<script src="/static/js/api_client.js"></script>
+<script>
+  if (!isAuthenticated()) window.location.href = "/login.html";
+
+  const params = new URLSearchParams(window.location.search);
+  const budgetId = params.get("id");
+  if (!budgetId) window.location.href = "/budgets.html";
+
+  document.getElementById("back-link").href = `dashboard.html?id=${budgetId}`;
+  document.getElementById("date-input").value = new Date().toISOString().slice(0, 10);
+  document.getElementById("date-input").max = new Date().toISOString().slice(0, 10);
+
+  let allCategories = [];
+  let selectedType = "expense";
+  let selectedCategoryId = null;
+
+  const optIncome = document.getElementById("opt-income");
+  const optExpense = document.getElementById("opt-expense");
+
+  function setActiveToggle(type) {
+    selectedType = type;
+    if (type === "income") {
+      optIncome.classList.add("bg-mint", "text-surface");
+      optIncome.classList.remove("text-[#8C8C94]");
+      optExpense.classList.remove("bg-mint", "text-surface");
+      optExpense.classList.add("text-[#8C8C94]");
+    } else {
+      optExpense.classList.add("bg-mint", "text-surface");
+      optExpense.classList.remove("text-[#8C8C94]");
+      optIncome.classList.remove("bg-mint", "text-surface");
+      optIncome.classList.add("text-[#8C8C94]");
+    }
+    renderChips();
+  }
+
+  function renderChips() {
+    const chipsEl = document.getElementById("category-chips");
+    const filtered = allCategories.filter((c) => c.type === selectedType);
+
+    if (filtered.length === 0) {
+      chipsEl.innerHTML = `<div class="text-xs text-[#8C8C94] font-semibold">Немає категорій цього типу</div>`;
+      selectedCategoryId = null;
+      return;
+    }
+
+    if (!filtered.some((c) => c.id === selectedCategoryId)) {
+      selectedCategoryId = filtered[0].id;
+    }
+
+    chipsEl.innerHTML = filtered
+      .map(
+        (c) => `
+        <button type="button" data-id="${c.id}" class="chip px-4 py-2 rounded-full text-xs font-bold ${
+          c.id === selectedCategoryId ? "bg-mint text-surface" : "bg-card lg:bg-card2 text-[#8C8C94]"
+        }">${c.name}</button>
+      `
+      )
+      .join("");
+
+    chipsEl.querySelectorAll(".chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        selectedCategoryId = chip.dataset.id;
+        renderChips();
+      });
+    });
+  }
+
+  optIncome.addEventListener("click", () => setActiveToggle("income"));
+  optExpense.addEventListener("click", () => setActiveToggle("expense"));
+
+  async function loadCategories() {
+    try {
+      allCategories = await apiFetch(`/budgets/${budgetId}/categories`);
+      renderChips();
+    } catch (error) {
+      showToast(error.message || "Не вдалося завантажити категорії", "error");
+    }
+  }
+
+  document.getElementById("submit-btn").addEventListener("click", async () => {
+    const errorEl = document.getElementById("form-error");
+    errorEl.classList.add("hidden");
+
+    const amount = document.getElementById("amount-input").value.trim();
+    const txnDate = document.getElementById("date-input").value;
+    const comment = document.getElementById("comment-input").value.trim();
+
+    if (!amount || Number(amount) <= 0) {
+      errorEl.textContent = "Введіть суму більшу за нуль";
+      errorEl.classList.remove("hidden");
+      return;
+    }
+    if (!selectedCategoryId) {
+      errorEl.textContent = "Оберіть категорію";
+      errorEl.classList.remove("hidden");
+      return;
+    }
+
+    const btn = document.getElementById("submit-btn");
+    btn.disabled = true;
+    try {
+      await apiFetch(`/budgets/${budgetId}/transactions`, {
+        method: "POST",
+        body: JSON.stringify({
+          amount: Number(amount),
+          category_id: selectedCategoryId,
+          txn_date: txnDate,
+          comment: comment || null,
+        }),
+      });
+      window.location.href = `dashboard.html?id=${budgetId}`;
+    } catch (error) {
+      errorEl.textContent = error.message || "Не вдалося зберегти транзакцію";
+      errorEl.classList.remove("hidden");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  loadCategories();
+</script>
+</body>
+</html>

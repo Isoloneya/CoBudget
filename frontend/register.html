@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoBudget — Реєстрація</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: { fontFamily: { sans: ['Manrope','sans-serif'] }, colors: {
+    surface:'#0B0B0C', panel:'#131315', card:'#1D1D21', card2:'#26262B', line:'rgba(255,255,255,0.07)',
+    mint:'#34D399', coral:'#FF6B6B', amber:'#FFB454', orange:'#FF9F43', blue:'#4DA6FF', violet:'#A78BFA', pink:'#FF6B9D',
+  } } } }
+</script>
+<style>body{font-family:'Manrope',sans-serif;}</style>
+</head>
+<body class="bg-surface text-[#F5F5F3] m-0">
+  <div class="lg:flex min-h-screen">
+
+    <div class="hidden lg:flex lg:w-1/2 flex-col justify-center px-20 bg-gradient-to-br from-[#1D1D21] to-[#0B0B0C] border-r border-line">
+      <div class="text-3xl font-extrabold tracking-tight mb-4">Co<span class="text-mint">Budget</span></div>
+      <div class="text-2xl font-bold leading-snug mb-6 max-w-md">Створіть бюджет, запросіть родину чи співмешканців — і бачте всі витрати в одному місці.</div>
+      <div class="bg-card rounded-2xl p-5 w-56">
+        <div class="text-xs text-[#8C8C94] font-semibold mb-2">ПОСИЛАННЯ-ЗАПРОШЕННЯ</div>
+        <div class="text-sm font-bold text-mint">cobudget.app/invite/8f3a2c</div>
+      </div>
+    </div>
+
+    <div class="flex-1 flex flex-col justify-center px-8 lg:px-20">
+      <div class="w-full max-w-sm mx-auto lg:mx-0">
+        <div class="text-2xl font-extrabold mb-2 lg:hidden">Co<span class="text-mint">Budget</span></div>
+        <div class="text-2xl font-extrabold mb-2 hidden lg:block">Створити акаунт</div>
+        <div class="text-[#8C8C94] mb-8 font-medium text-sm">Це займе менше хвилини</div>
+
+        <label class="block text-xs font-semibold text-[#8C8C94] mb-2">Пошта</label>
+        <input id="email" type="email" placeholder="you@example.com" class="w-full bg-card border border-line rounded-2xl px-4 py-3.5 mb-4 text-sm font-semibold outline-none focus:ring-2 focus:ring-mint">
+
+        <label class="block text-xs font-semibold text-[#8C8C94] mb-2">Пароль</label>
+        <input id="password" type="password" placeholder="Мінімум 8 символів" class="w-full bg-card border border-line rounded-2xl px-4 py-3.5 mb-4 text-sm font-semibold outline-none focus:ring-2 focus:ring-mint">
+
+        <label class="block text-xs font-semibold text-[#8C8C94] mb-2">Підтвердження пароля</label>
+        <input id="confirm-password" type="password" placeholder="••••••••" class="w-full bg-card border border-line rounded-2xl px-4 py-3.5 mb-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-mint">
+
+        <div id="form-error" class="hidden text-coral text-xs font-semibold mb-4"></div>
+
+        <button id="submit-btn" class="w-full bg-mint text-surface font-extrabold rounded-full py-3.5 text-sm mb-5">Зареєструватися</button>
+        <div class="text-center text-sm text-[#8C8C94] font-medium">Вже є акаунт? <a href="login.html" class="text-mint font-bold">Увійти</a></div>
+      </div>
+    </div>
+  </div>
+
+<script src="/static/js/api_client.js"></script>
+<script>
+  const errorBox = document.getElementById("form-error");
+  const submitBtn = document.getElementById("submit-btn");
+
+  function showError(message) {
+    errorBox.textContent = message;
+    errorBox.classList.remove("hidden");
+  }
+
+  submitBtn.addEventListener("click", async () => {
+    errorBox.classList.add("hidden");
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
+
+    if (!email || !password) {
+      showError("Заповніть усі поля");
+      return;
+    }
+    if (password.length < 8) {
+      showError("Пароль має містити мінімум 8 символів");
+      return;
+    }
+    if (password !== confirmPassword) {
+      showError("Паролі не збігаються");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    try {
+      await apiFetch("/auth/register", { method: "POST", body: JSON.stringify({ email, password }) });
+      await apiLogin(email, password);
+      const next = new URLSearchParams(window.location.search).get("next");
+      window.location.href = next ? decodeURIComponent(next) : "/budgets.html";
+    } catch (error) {
+      showError(error.message || "Не вдалося зареєструватися");
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html> 
