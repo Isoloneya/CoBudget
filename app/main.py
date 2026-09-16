@@ -1,4 +1,5 @@
 import logging
+import os
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -45,4 +46,5 @@ def health_check():
     return {"status": "ok", "environment": settings.ENVIRONMENT}
 
 
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+if not os.environ.get("VERCEL"):
+    app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")

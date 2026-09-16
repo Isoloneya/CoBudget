@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    { "source": "/static/:path*", "destination": "/frontend/static/:path*" },
+    { "source": "/login.html", "destination": "/frontend/login.html" },
+    { "source": "/register.html", "destination": "/frontend/register.html" },
+    { "source": "/invite.html", "destination": "/frontend/invite.html" },
+    { "source": "/budgets.html", "destination": "/frontend/budgets.html" },
+    { "source": "/dashboard.html", "destination": "/frontend/dashboard.html" },
+    { "source": "/transactions.html", "destination": "/frontend/transactions.html" },
+    { "source": "/categories.html", "destination": "/frontend/categories.html" },
+    { "source": "/add-transaction.html", "destination": "/frontend/add-transaction.html" },
+    { "source": "/members.html", "destination": "/frontend/members.html" },
+    { "source": "/", "destination": "/frontend/login.html" },
+    { "source": "/health", "destination": "/api/index.py" },
+    { "source": "/auth/:path*", "destination": "/api/index.py" },
+    { "source": "/budgets", "destination": "/api/index.py" },
+    { "source": "/budgets/:path*", "destination": "/api/index.py" },
+    { "source": "/invites/:path*", "destination": "/api/index.py" }
+  ]
+}
