@@ -1,20 +1,24 @@
 {
-  "rewrites": [
-    { "source": "/static/:path*", "destination": "/frontend/static/:path*" },
-    { "source": "/login.html", "destination": "/frontend/login.html" },
-    { "source": "/register.html", "destination": "/frontend/register.html" },
-    { "source": "/invite.html", "destination": "/frontend/invite.html" },
-    { "source": "/budgets.html", "destination": "/frontend/budgets.html" },
-    { "source": "/dashboard.html", "destination": "/frontend/dashboard.html" },
-    { "source": "/transactions.html", "destination": "/frontend/transactions.html" },
-    { "source": "/categories.html", "destination": "/frontend/categories.html" },
-    { "source": "/add-transaction.html", "destination": "/frontend/add-transaction.html" },
-    { "source": "/members.html", "destination": "/frontend/members.html" },
-    { "source": "/", "destination": "/frontend/login.html" },
-    { "source": "/health", "destination": "/api/index.py" },
-    { "source": "/auth/:path*", "destination": "/api/index.py" },
-    { "source": "/budgets", "destination": "/api/index.py" },
-    { "source": "/budgets/:path*", "destination": "/api/index.py" },
-    { "source": "/invites/:path*", "destination": "/api/index.py" }
+  "builds": [
+    { "src": "api/index.py", "use": "@vercel/python" },
+    { "src": "frontend/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/static/(.*)", "dest": "/frontend/static/$1" },
+    { "src": "/login.html", "dest": "/frontend/login.html" },
+    { "src": "/register.html", "dest": "/frontend/register.html" },
+    { "src": "/invite.html", "dest": "/frontend/invite.html" },
+    { "src": "/budgets.html", "dest": "/frontend/budgets.html" },
+    { "src": "/dashboard.html", "dest": "/frontend/dashboard.html" },
+    { "src": "/transactions.html", "dest": "/frontend/transactions.html" },
+    { "src": "/categories.html", "dest": "/frontend/categories.html" },
+    { "src": "/add-transaction.html", "dest": "/frontend/add-transaction.html" },
+    { "src": "/members.html", "dest": "/frontend/members.html" },
+    { "src": "/", "dest": "/frontend/login.html" },
+    { "src": "/health", "dest": "/api/index.py" },
+    { "src": "/auth/(.*)", "dest": "/api/index.py" },
+    { "src": "/budgets", "dest": "/api/index.py" },
+    { "src": "/budgets/(.*)", "dest": "/api/index.py" },
+    { "src": "/invites/(.*)", "dest": "/api/index.py" }
   ]
 }
