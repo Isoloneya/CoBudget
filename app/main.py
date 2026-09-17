@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import models  # noqa: F401
-from app.api.v1 import auth, budgets, categories, invites, members, transactions
+from app.routers.v1 import auth, budgets, categories, invites, members, transactions
 from app.core.config import settings
 from app.core.exceptions import AppError
 

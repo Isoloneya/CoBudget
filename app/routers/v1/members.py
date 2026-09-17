@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_budget_member
+from app.routers.deps import get_budget_member
 from app.db.session import get_db
 from app.models.budget_member import BudgetMember, BudgetRole
 from app.schemas.member import MemberOut, MemberRoleUpdate

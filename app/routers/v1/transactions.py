@@ -3,7 +3,7 @@ from datetime import date as date_type
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_budget_member
+from app.routers.deps import get_budget_member
 from app.core.exceptions import TransactionNotFoundError
 from app.db.session import get_db
 from app.models.budget_member import BudgetMember
