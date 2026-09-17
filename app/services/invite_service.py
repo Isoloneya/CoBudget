@@ -1,5 +1,5 @@
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
 
@@ -10,9 +10,13 @@ from app.models.invite import Invite
 from app.repositories import budget_member_repository, invite_repository
 
 
+def _as_utc(value: datetime) -> datetime:
+    return value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
+
+
 def create_invite(db: Session, budget_id: str, created_by: str) -> Invite:
     token = secrets.token_urlsafe(24)
-    expires_at = datetime.utcnow() + timedelta(days=settings.INVITE_TOKEN_EXPIRE_DAYS)
+    expires_at = datetime.now(timezone.utc) + timedelta(days=settings.INVITE_TOKEN_EXPIRE_DAYS)
     return invite_repository.create(db, budget_id=budget_id, token=token, created_by=created_by, expires_at=expires_at)
 
 
@@ -20,7 +24,7 @@ def get_valid_invite(db: Session, token: str) -> Invite:
     invite = invite_repository.get_by_token(db, token)
     if invite is None or invite.used:
         raise InvalidInviteTokenError()
-    if invite.expires_at < datetime.utcnow():
+    if _as_utc(invite.expires_at) < datetime.now(timezone.utc):
         raise InvalidInviteTokenError()
     return invite
 
